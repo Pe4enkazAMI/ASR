@@ -9,7 +9,7 @@ class Conformer(nn.Module):
         super().__init__()
         self.encoder = ConformerEncoder(input_dim=kwargs["input_dim"],
                                         d_encoder=kwargs["d_encoder"],
-                                        num_layers=kwargs["num_layers"],
+                                        num_layers=kwargs["num_encoder_layers"],
                                         num_heads_attention=kwargs["num_heads_attention"],
                                         ffl_exp_factor=kwargs["ffl_exp_factor"],
                                         ffl_dropout=kwargs["ffl_dropout"],
@@ -21,7 +21,7 @@ class Conformer(nn.Module):
         
         self.decoder = ConformerDecoder(d_encoder=kwargs["d_encoder"],
                                         num_classes=kwargs["num_classes"],
-                                        hidden_size_decoder=kwargs["hidden_size_decoder"], num_layers=1)
+                                        hidden_size_decoder=kwargs["hidden_size_decoder"], num_layers=kwargs["num_decoder_layers"])
 
     def forward(self, x):
         return self.decoder(self.encoder(x))

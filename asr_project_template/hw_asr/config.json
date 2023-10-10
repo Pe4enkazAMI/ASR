@@ -1,4 +1,4 @@
-{
+  {
   "name": "default_config",
   "n_gpu": 1,
   "preprocessing": {
@@ -15,10 +15,21 @@
     "spectrogram": []
   },
   "arch": {
-    "type": "BaselineModel",
+    "type": "Conformer",
     "args": {
-      "n_feats": 128,
-      "fc_hidden": 512
+      "input_dim": 128,
+      "d_encoder": 512,
+      "ffl_exp_factor": 2,
+      "conv_exp_factor": 2,
+      "ffl_dropout": 0.1,
+      "conv_dropout": 0.1,
+      "attention_dropout": 0.1,
+      "conv_kernel_size": 32,
+      "num_classes": 28,
+      "num_encoder_layers": 17,
+      "num_heads_attention": 8,
+      "hidden_size_decoder": 640,
+      "num_decoder_layers": 3
     }
   },
   "data": {
@@ -32,8 +43,7 @@
             "part": "train-clean-100",
             "max_audio_length": 20.0,
             "max_text_length": 200
-          },
-          "module": "hw_asr.models"
+          }
         },
         {
           "type": "LibrispeechDataset",
