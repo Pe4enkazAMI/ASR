@@ -19,10 +19,6 @@
           "p": 0.5,
           "tmp": 0.5
         }
-      },
-      {
-        "type": "FrequencyMasking",
-        "args": {}
       }
     ]
   },
