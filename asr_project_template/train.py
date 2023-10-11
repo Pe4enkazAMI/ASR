@@ -12,6 +12,7 @@ from hw_asr.trainer import Trainer
 from hw_asr.utils import prepare_device
 from hw_asr.utils.object_loading import get_dataloaders
 from hw_asr.utils.parse_config import ConfigParser
+from hw_asr.model.ConformerV1.ConformerOptimizer import WarmUpAdam
 
 warnings.filterwarnings("ignore", category=UserWarning)
 
@@ -53,7 +54,13 @@ def main(config):
     # disabling scheduler
     trainable_params = filter(lambda p: p.requires_grad, model.parameters())
     optimizer = config.init_obj(config["optimizer"], torch.optim, trainable_params)
-    lr_scheduler = config.init_obj(config["lr_scheduler"], torch.optim.lr_scheduler, optimizer)
+    if config["warmup"]:
+        optimizer = WarmUpAdam(d_model=config["arch"]["args"]["d_encoder"], warmup_steps=int(1e4), optimizer=optimizer)
+        
+    else:
+        lr_scheduler = config.init_obj(config["lr_scheduler"], torch.optim.lr_scheduler, optimizer)
+    
+        
 
     trainer = Trainer(
         model,
@@ -64,7 +71,7 @@ def main(config):
         config=config,
         device=device,
         dataloaders=dataloaders,
-        lr_scheduler=lr_scheduler,
+        lr_scheduler=lr_scheduler if not config["warmup"] else None,
         len_epoch=config["trainer"].get("len_epoch", None)
     )
 

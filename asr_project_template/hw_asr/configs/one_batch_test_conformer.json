@@ -45,11 +45,12 @@
       "ffl_dropout": 0.1,
       "conv_dropout": 0.1,
       "attention_dropout": 0.1,
-      "conv_kernel_size": 3,
+      "conv_kernel_size": 31,
       "num_classes": 28,
-      "num_layers": 1,
-      "num_heads_attention": 4,
-      "hidden_size_decoder": 128 
+      "num_encoder_layers": 1,
+      "num_heads_attention": 2,
+      "hidden_size_decoder": 640,
+      "num_decoder_layers": 1
     }
   },
   "data": {
@@ -85,11 +86,12 @@
     }
   },
   "optimizer": {
-    "type": "SGD",
+    "type": "Adam",
     "args": {
-      "lr": 1e-2
+      "lr": 3e-4
     }
   },
+  "warmup": "True",
   "loss": {
     "type": "CTCLoss",
     "args": {}

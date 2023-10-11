@@ -34,18 +34,21 @@ class PointwiseConv1d(nn.Module):
         return self.conv(x)
 
 class ConvSubsample(nn.Module):
-    def __init__(self, in_chanels, out_chanels):
+    def __init__(self, out_chanels):
         super().__init__()
         self.subsampler = nn.Sequential(
-            nn.Conv1d(in_channels=in_chanels, out_channels=out_chanels, kernel_size=3, stride=2),
+            nn.Conv2d(in_channels=1, out_channels=out_chanels, kernel_size=3, stride=2),
             nn.ReLU(),
-            nn.Conv1d(in_channels=out_chanels, out_channels=out_chanels, kernel_size=3, stride=2),
+            nn.Conv2d(in_channels=out_chanels, out_channels=out_chanels, kernel_size=3, stride=2),
             nn.ReLU()
         )
     
-    def forward(self, x, xshape):
-        x = self.subsampler(x)
-        return x.permute(0, 2, 1)
+    def forward(self, x):
+        out = self.subsampler(x.unsqueeze(1))
+        batch_size, channels, subsample_len, subsample_dim = out.shape
+        out = out.permute(0, 2, 1, 3)
+        out = out.contiguous().view(batch_size, subsample_len, channels * subsample_dim)
+        return out
 
 class Printer(nn.Module):
     def __init__(self, *args, **kwargs) -> None:
@@ -67,7 +70,7 @@ class ConformerConvBlock(nn.Module):
             nn.BatchNorm1d(in_chanels),
             Swish(),
             PointwiseConv1d(in_chanels, in_chanels, 0, 1),
-            nn.Dropout(p=self.p)
+            nn.Dropout(p=self.p),
         )
         
     def forward(self, x):

@@ -45,7 +45,7 @@ class ConformerBlock(nn.Module):
                     exp_factor=conv_exp_factor,
                     kernel_size=conv_kernel_size,
                     stride=1,
-                    padding=1,
+                    padding=15,
                     dropout=conv_dropout
                 ),
                 module_factor=1,
@@ -78,9 +78,11 @@ class ConformerEncoder(nn.Module):
                 conv_dropout,
                 attention_dropout):
         super().__init__()
-        self.subsample = ConvSubsample(in_chanels=input_dim, out_chanels=d_encoder)
+        self.subsample = ConvSubsample(out_chanels=d_encoder)
+
+        in_feat = d_encoder * (((input_dim - 1)//2) - 1)//2
         self.linear_projection = nn.Sequential(
-            nn.Linear(d_encoder, d_encoder),
+            nn.Linear(in_feat, d_encoder),
             nn.Dropout(0.1)
         )
         self.layers = nn.ModuleList([ConformerBlock(d_encoder,
@@ -96,11 +98,9 @@ class ConformerEncoder(nn.Module):
         return sum(filter(lambda p: p.requires_grad, self.parameters()))
 
     def forward(self, x):
-        x = self.subsample(x, x.shape)
+        x = self.subsample(x.transpose(1,2))
         x = self.linear_projection(x)
         for layer in self.layers:
             x = layer(x)
         return x
-
-
 
