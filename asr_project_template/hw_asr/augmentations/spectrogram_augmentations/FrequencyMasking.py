@@ -5,9 +5,9 @@ from hw_asr.augmentations.base import AugmentationBase
 
 
 class FrequencyMasking(AugmentationBase):
-    def __init__(self, p, tmp=1, *args, **kwargs):
+    def __init__(self, p=0.5, *args, **kwargs):
         self.p = p 
-        self._aug = tat.FrequencyMasking(*args, p=self.tmp, **kwargs)
+        self._aug = tat.FrequencyMasking(*args, p=self.p, **kwargs)
 
     def __call__(self, data: Tensor):
         if random.random() < self.p:
