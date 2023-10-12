@@ -129,7 +129,7 @@
       "pct_start": 0.2
     }
   },
-  "wandb_project_name": "Vanilla_Conformer_1_beam_search",
+  "wandb_project_name": "TinyConformerV1",
   "trainer": {
     "epochs": 50,
     "save_dir": "saved/",
