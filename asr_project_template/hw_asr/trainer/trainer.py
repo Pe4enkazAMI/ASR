@@ -156,7 +156,7 @@ class Trainer(BaseTrainer):
         batch["loss"] = self.criterion(**batch)
         if is_train:
             batch["loss"].backward()
-            if (((index + 1) % self.accum_steps) == 0) or (index + 1 == self.total):
+            if (((index + 1) % self.accum_steps) == 0) or (index + 1 == end):
                 self._clip_grad_norm()
                 self.optimizer.step()
                 self.optimizer.zero_grad()
