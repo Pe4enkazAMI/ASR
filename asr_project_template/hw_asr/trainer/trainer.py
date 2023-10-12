@@ -52,7 +52,8 @@ class Trainer(BaseTrainer):
         self.lr_scheduler = lr_scheduler
         self.log_step = 50
         self.accum_steps = config["trainer"].get("accum_steps", 1)
-
+        
+        print(self.lr_scheduler)
         self.train_metrics = MetricTracker(
             "loss", "grad norm", *[m.name for m in self.metrics], writer=self.writer
         )
