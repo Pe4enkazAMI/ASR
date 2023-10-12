@@ -108,6 +108,18 @@
       "args": {
         "name": "CER (argmax)"
       }
+    },
+    {
+      "type": "BeamSearchCER",
+      "args":{
+        "name": "CER (beam)"
+      }
+    },
+    {
+      "type": "BeamSearchWER",
+      "args":{
+        "name": "WER (beam)"
+      }
     }
   ],
   "lr_scheduler": {
@@ -120,7 +132,7 @@
       "pct_start": 0.2
     }
   },
-  "wandb_project_name" : "Conformer_1_batch_kaggle",
+  "wandb_project_name" : "Conformer_1_batch_kaggle_beam",
   "trainer": {
     "epochs": 50,
     "save_dir": "saved/",

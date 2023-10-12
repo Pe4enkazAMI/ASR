@@ -53,6 +53,15 @@
             "max_text_length": 200,
             "data_dir": "/kaggle/input/librispeech-asr-wav-dataset"
           }
+        },
+        {
+          "type": "LibrispeechDataset",
+          "args": {
+            "part": "train-clean-360",
+            "max_audio_length": 20.0,
+            "max_text_length": 200,
+            "data_dir": "/kaggle/input/librispeech-asr-wav-dataset"
+          }
         }
       ]
     },
@@ -106,6 +115,18 @@
       "args": {
         "name": "CER (argmax)"
       }
+    },
+    {
+      "type": "BeamSearchWER",
+      "args": {
+        "name": "WER (beam)"
+      }
+    },
+    {
+      "type": "BeamSearchCER",
+      "args": {
+        "name": "CER (beam)"
+      }
     }
   ],
   "lr_scheduler": {
@@ -118,7 +139,7 @@
       "pct_start": 0.2
     }
   },
-  "wandb_project_name": "Vanilla_Conformer_1",
+  "wandb_project_name": "Vanilla_Conformer_1_beam_search",
   "trainer": {
     "epochs": 50,
     "save_dir": "saved/",

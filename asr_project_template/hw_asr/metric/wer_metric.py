@@ -27,14 +27,14 @@ class ArgmaxWERMetric(BaseMetric):
         return sum(wers) / len(wers)
     
 class BeamSearchWER(BaseMetric):
-    def __init__(self, text_encoder: BaseTextEncoder, beam_size=100, *args, **kwargs):
-        super.__init__(*args, **kwargs)
+    def __init__(self, text_encoder: BaseTextEncoder, beam_size=3, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.text_encoder = text_encoder
         self.beam_size = beam_size
 
-    def __call__(self, probs, probs_len, text, **kwargs):
-        preds = probs.detach().cpu().numpy()
-        lens = probs_len.detach().numpy()
+    def __call__(self, log_probs, log_probs_length, text, **kwargs):
+        preds = log_probs.detach().cpu().numpy()
+        lens = log_probs_length.detach().numpy()
         metric = []
 
         for probs, len_, target in zip(preds, lens, text):

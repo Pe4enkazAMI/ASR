@@ -25,17 +25,17 @@ def collate_fn(dataset_items: List[dict]):
     audios = [item["audio"] for item in dataset_items]
     audios_paths = [item["audio_path"] for item in dataset_items]
     audio_len = [item.shape[1] for item in audios]
-    max_audio_len = max([item["audio"].shape[1] for item in dataset_items]) #<------- смотрб макс длину
+    max_audio_len = max([item["audio"].shape[1] for item in dataset_items]) 
 
     spec_batch = torch.zeros(size=(batch_size, spec_freq, max_spec_len))
     text_batch = torch.zeros(size=(batch_size, max_text_enc_len))
 
-    audios_padded = torch.zeros(size=(batch_size, max_audio_len))  #<------ батч нулей
+    audios_padded = torch.zeros(size=(batch_size, max_audio_len))  
     for el in range(batch_size):
 
         spec_batch[el, ..., :spec_len[el]] = dataset_items[el]["spectrogram"].squeeze(0)
         text_batch[el, ..., :text_enc_len[el]] = dataset_items[el]["text_encoded"].squeeze(0)
-        audios_padded[el, :audio_len[el]] = dataset_items[el]["audio"].squeeze(0) #<--- падает тут 
+        audios_padded[el, :audio_len[el]] = dataset_items[el]["audio"].squeeze(0) 
 
     result_batch = {
         "spectrogram": spec_batch,

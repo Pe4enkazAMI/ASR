@@ -121,7 +121,6 @@ class Trainer(BaseTrainer):
                     )
                 self._log_predictions(**batch)
                 self._log_spectrogram(batch["spectrogram"])
-                self._log_audio(batch["audio"])
                 self._log_scalars(self.train_metrics)
                 # we don't want to reset train metrics at the start of every epoch
                 # because we are interested in recent train metrics
@@ -189,9 +188,9 @@ class Trainer(BaseTrainer):
             self._log_predictions(**batch)
             self._log_spectrogram(batch["spectrogram"])
 
-        # add histogram of model parameters to the tensorboard
-        for name, p in self.model.named_parameters():
-            self.writer.add_histogram(name, p, bins="auto")
+        # # add histogram of model parameters to the tensorboard
+        # for name, p in self.model.named_parameters():
+        #     self.writer.add_histogram(name, p, bins="auto")
         return self.evaluation_metrics.result()
 
     def _progress(self, batch_idx):
@@ -210,6 +209,7 @@ class Trainer(BaseTrainer):
             log_probs,
             log_probs_length,
             audio_path,
+            audio,
             examples_to_log=10,
             *args,
             **kwargs,
@@ -224,20 +224,37 @@ class Trainer(BaseTrainer):
         ]
         argmax_texts_raw = [self.text_encoder.decode(inds) for inds in argmax_inds]
         argmax_texts = [self.text_encoder.ctc_decode(inds) for inds in argmax_inds]
-        tuples = list(zip(argmax_texts, text, argmax_texts_raw, audio_path))
+        beam_search_text = []
+        preds = log_probs.detach().cpu().numpy()
+        preds_lens = log_probs_length.detach().cpu().numpy()
+        
+        for pred, pred_len in zip(preds, preds_lens):
+            hypo_text = self.text_encoder.ctc_beam_search(pred[:pred_len], 3)
+            beam_search_text.append(hypo_text[0].text)
+
+
+        tuples = list(zip(beam_search_text, argmax_texts, text, argmax_texts_raw, audio_path, audio))
         shuffle(tuples)
         rows = {}
-        for pred, target, raw_pred, audio_path in tuples[:examples_to_log]:
+        for beam_pred, pred, target, raw_pred, audio_path, audio in tuples[:examples_to_log]:
             target = BaseTextEncoder.normalize_text(target)
             wer = calc_wer(target, pred) * 100
             cer = calc_cer(target, pred) * 100
 
+            beam_wer = calc_wer(target, beam_pred) * 100
+            beam_cer = calc_cer(target, beam_pred) * 100
+
             rows[Path(audio_path).name] = {
+                "orig_audio": self.writer.wandb.Audio(audio_path),
+                "augmented_audio": self.writer.wandb.Audio(audio.numpy(), sample_rate=16000),
                 "target": target,
                 "raw prediction": raw_pred,
                 "predictions": pred,
                 "wer": wer,
                 "cer": cer,
+                "beam search predictions": beam_pred,
+                "beam wer": beam_wer,
+                "beam cer": beam_cer
             }
         self.writer.add_table("predictions", pd.DataFrame.from_dict(rows, orient="index"))
 
@@ -246,10 +263,6 @@ class Trainer(BaseTrainer):
         image = PIL.Image.open(plot_spectrogram_to_buf(spectrogram))
         self.writer.add_image("spectrogram", ToTensor()(image))
     
-    def _log_audio(self, audio_batch):
-        audio = random.choice(audio_batch.cpu())
-        self.writer.add_audio("audio", audio, sample_rate=16000)
-
     @torch.no_grad()
     def get_grad_norm(self, norm_type=2):
         parameters = self.model.parameters()

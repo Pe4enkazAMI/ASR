@@ -2,7 +2,7 @@ from typing import List, NamedTuple
 
 import torch
 from collections import defaultdict
-
+from scipy.special import softmax
 from .char_text_encoder import CharTextEncoder
 
 
@@ -63,7 +63,7 @@ class CTCCharTextEncoder(CharTextEncoder):
         assert voc_size == len(self.ind2char)
 
         beam = defaultdict(float)
-        probs = torch.functional.softmax(probs, dim=1)
+        probs = softmax(probs, axis=1)
 
         for prob in probs:
             beam = self._extend_beam(beam, prob)
