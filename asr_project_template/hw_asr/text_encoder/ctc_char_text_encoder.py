@@ -52,7 +52,7 @@ class CTCCharTextEncoder(CharTextEncoder):
     def _cut_beam(self, beam, beam_size):
         return dict(sorted(beam.items(), key=lambda x: -x[1])[:beam_size])
 
-
+# спиздил с сема
     def ctc_beam_search(self, probs: torch.tensor,
                         beam_size: int = 100) -> List[Hypothesis]:
         """

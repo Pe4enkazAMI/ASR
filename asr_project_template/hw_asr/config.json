@@ -99,6 +99,7 @@
     }
   },
   "warmup": "True",
+  "use_beam_search": "False",
   "loss": {
     "type": "CTCLoss",
     "args": {}

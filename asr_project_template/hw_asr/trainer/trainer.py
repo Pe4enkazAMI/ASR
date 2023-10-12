@@ -228,9 +228,12 @@ class Trainer(BaseTrainer):
         preds = log_probs.detach().cpu().numpy()
         preds_lens = log_probs_length.detach().cpu().numpy()
         
-        for pred, pred_len in zip(preds, preds_lens):
-            hypo_text = self.text_encoder.ctc_beam_search(pred[:pred_len], 3)
-            beam_search_text.append(hypo_text[0].text)
+        if self.config["use_beam_search"]:
+            for pred, pred_len in zip(preds, preds_lens):
+                hypo_text = self.text_encoder.ctc_beam_search(pred[:pred_len], 3)
+                beam_search_text.append(hypo_text[0].text)
+        else:
+            beam_search_text = [0] * len(argmax_texts)
 
 
         tuples = list(zip(beam_search_text, argmax_texts, text, argmax_texts_raw, audio_path, audio))
@@ -241,8 +244,8 @@ class Trainer(BaseTrainer):
             wer = calc_wer(target, pred) * 100
             cer = calc_cer(target, pred) * 100
 
-            beam_wer = calc_wer(target, beam_pred) * 100
-            beam_cer = calc_cer(target, beam_pred) * 100
+            beam_wer = calc_wer(target, beam_pred) * 100 if self.config["use_beam_search"] else 1337
+            beam_cer = calc_cer(target, beam_pred) * 100 if self.config["use_beam_search"] else 1488
 
             rows[Path(audio_path).name] = {
                 "orig_audio": self.writer.wandb.Audio(audio_path),
