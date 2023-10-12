@@ -106,8 +106,11 @@ class Trainer(BaseTrainer):
                     continue
                 else:
                     raise e
-            if batch_idx % self.accum_steps == 0:
+            try:
                 self.train_metrics.update("grad norm", self.get_grad_norm())
+            except RuntimeError as e:
+                if e is RuntimeError:
+                    continue
 
             if batch_idx % self.log_step == 0:
                 self.writer.set_step((epoch - 1) * self.len_epoch + batch_idx)
