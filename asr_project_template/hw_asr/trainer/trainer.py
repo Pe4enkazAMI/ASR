@@ -51,6 +51,7 @@ class Trainer(BaseTrainer):
         self.evaluation_dataloaders = {k: v for k, v in dataloaders.items() if k != "train"}
         self.lr_scheduler = lr_scheduler
         self.log_step = 50
+        self.accum_steps = config["trainer"].get("accum_steps", 1)
 
         self.train_metrics = MetricTracker(
             "loss", "grad norm", *[m.name for m in self.metrics], writer=self.writer
@@ -92,6 +93,8 @@ class Trainer(BaseTrainer):
                     batch,
                     is_train=True,
                     metrics=self.train_metrics,
+                    index=batch_idx,
+                    end=self.len_epoch
                 )
             except RuntimeError as e:
                 if "out of memory" in str(e) and self.skip_oom:
@@ -136,7 +139,7 @@ class Trainer(BaseTrainer):
 
         return log
 
-    def process_batch(self, batch, is_train: bool, metrics: MetricTracker):
+    def process_batch(self, batch, is_train: bool, metrics: MetricTracker, index=None, end=None):
         batch = self.move_batch_to_device(batch, self.device)
         if is_train:
             self.optimizer.zero_grad()
@@ -153,8 +156,10 @@ class Trainer(BaseTrainer):
         batch["loss"] = self.criterion(**batch)
         if is_train:
             batch["loss"].backward()
-            self._clip_grad_norm()
-            self.optimizer.step()
+            if (((index + 1) % self.accum_steps) == 0) or (index + 1 == self.total):
+                self._clip_grad_norm()
+                self.optimizer.step()
+                self.optimizer.zero_grad()
             if self.lr_scheduler is not None:
                 self.lr_scheduler.step()
 
