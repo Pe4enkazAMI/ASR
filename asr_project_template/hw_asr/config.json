@@ -31,7 +31,7 @@
     "type": "Conformer",
     "args": {
       "input_dim": 128,
-      "d_encoder": 144,
+      "d_encoder": 256,
       "ffl_exp_factor": 2,
       "conv_exp_factor": 2,
       "ffl_dropout": 0.1,
@@ -39,9 +39,9 @@
       "attention_dropout": 0.1,
       "conv_kernel_size": 31,
       "num_classes": 28,
-      "num_encoder_layers": 16,
+      "num_encoder_layers": 4,
       "num_heads_attention": 4,
-      "hidden_size_decoder": 256,
+      "hidden_size_decoder": 120,
       "num_decoder_layers": 1
     }
   },
@@ -107,7 +107,7 @@
     }
   },
   "warmup": "True",
-  "use_beam_search": "True",
+  "use_beam_search": "False",
   "loss": {
     "type": "CTCLoss",
     "args": {}
@@ -124,18 +124,6 @@
       "args": {
         "name": "CER (argmax)"
       }
-    },
-    {
-      "type": "BeamSearchCER",
-      "args": {
-        "name": "CER (beam)"
-      }
-    },
-    {
-      "type": "BeamSearchWER",
-      "args": {
-        "name": "WER (beam)"
-      }
     }
   ],
   "lr_scheduler": {
@@ -148,9 +136,9 @@
       "pct_start": 0.2
     }
   },
-  "wandb_project_name": "Yanformer",
+  "wandb_project_name": "Yanformer_small",
   "trainer": {
-    "epochs": 100,
+    "epochs": 150,
     "save_dir": "saved/",
     "save_period": 5,
     "verbosity": 2,
