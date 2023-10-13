@@ -53,7 +53,6 @@ class Trainer(BaseTrainer):
         self.log_step = 50
         self.accum_steps = config["trainer"].get("accum_steps", 1)
         
-        print(self.lr_scheduler)
         self.train_metrics = MetricTracker(
             "loss", "grad norm", *[m.name for m in self.metrics], writer=self.writer
         )
@@ -147,8 +146,8 @@ class Trainer(BaseTrainer):
 
     def process_batch(self, batch, is_train: bool, metrics: MetricTracker, index=None, end=None):
         batch = self.move_batch_to_device(batch, self.device)
-        if is_train:
-            self.optimizer.zero_grad()
+        # if is_train:
+        #     self.optimizer.zero_grad()
         outputs = self.model(batch["spectrogram"])
         if type(outputs) is dict:
             batch.update(outputs)
