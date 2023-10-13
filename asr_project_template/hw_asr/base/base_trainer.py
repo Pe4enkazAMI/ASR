@@ -145,7 +145,7 @@ class BaseTrainer:
             "monitor_best": self.mnt_best,
             "config": self.config,
         }
-        if hasattr(self, "lr_scheduler"):
+        if hasattr(self, "lr_scheduler") and self.lr_scheduler is not None:
             state.update({"lr_scheduler": self.lr_scheduler.state_dict()})
             
         filename = str(self.checkpoint_dir / f"checkpoint-epoch{epoch}.pth")
