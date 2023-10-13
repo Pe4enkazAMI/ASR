@@ -17,17 +17,11 @@ class WarmUpAdam(opt.Optimizer):
     
     def step(self):
         self._step += 1
-        if self._rate <= 0.05 / ((self.d_model)**0.5):
-            rate = self.rate()
-            for p in self.optimizer.param_groups:
-                p["lr"] = rate
-            self._rate = rate
-                
-            self.optimizer.step()
-        else:
-            for p in self.optimizer.param_groups:
-                p["lr"] = 0.05 / ((self.d_model)**0.5)
-            self.optimizer.step()
+        rate = self.rate()
+        for p in self.optimizer.param_groups:
+            p["lr"] = rate
+        self._rate = rate        
+        self.optimizer.step()
     
     def zero_grad(self):
         self.optimizer.zero_grad()

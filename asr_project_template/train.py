@@ -53,8 +53,12 @@ def main(config):
     # build optimizer, learning rate scheduler. delete every line containing lr_scheduler for
     # disabling scheduler
     trainable_params = filter(lambda p: p.requires_grad, model.parameters())
-    optimizer = config.init_obj(config["optimizer"], torch.optim, trainable_params)
-    lr_scheduler = config.init_obj(config["lr_scheduler"], torch.optim.lr_scheduler, optimizer)
+    if config["warmup"]:
+        optimizer = config.init_obj(config["optimizer"], torch.optim, trainable_params)
+        optimizer = WarmUpAdam(config["arch"]["d_encoder"], 10_000, optimizer=optimizer)
+        lr_scheduler = None
+    else:
+        lr_scheduler = config.init_obj(config["lr_scheduler"], torch.optim.lr_scheduler, optimizer)
     
         
 

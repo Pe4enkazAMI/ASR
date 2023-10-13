@@ -1,6 +1,5 @@
 import torch.nn as nn
 import torch
-from .encoder import ConformerEncoder
 
 
 class ConformerDecoder(nn.Module):
