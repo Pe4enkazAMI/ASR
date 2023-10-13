@@ -93,8 +93,6 @@ class Trainer(BaseTrainer):
                     batch,
                     is_train=True,
                     metrics=self.train_metrics,
-                    index=batch_idx,
-                    end=self.len_epoch
                 )
             except RuntimeError as e:
                 if "out of memory" in str(e) and self.skip_oom:
@@ -106,12 +104,8 @@ class Trainer(BaseTrainer):
                     continue
                 else:
                     raise e
-            try:
-                self.train_metrics.update("grad norm", self.get_grad_norm())
-            except RuntimeError as e:
-                if e is RuntimeError:
-                    continue
-
+            
+            self.train_metrics.update("grad norm", self.get_grad_norm())
             if batch_idx % self.log_step == 0:
                 self.writer.set_step((epoch - 1) * self.len_epoch + batch_idx)
                 self.logger.debug(
@@ -144,10 +138,10 @@ class Trainer(BaseTrainer):
 
         return log
 
-    def process_batch(self, batch, is_train: bool, metrics: MetricTracker, index=None, end=None):
+    def process_batch(self, batch, is_train: bool, metrics: MetricTracker):
         batch = self.move_batch_to_device(batch, self.device)
-        # if is_train:
-        #     self.optimizer.zero_grad()
+        if is_train:
+            self.optimizer.zero_grad()
         outputs = self.model(batch["spectrogram"])
         if type(outputs) is dict:
             batch.update(outputs)
@@ -161,10 +155,8 @@ class Trainer(BaseTrainer):
         batch["loss"] = self.criterion(**batch)
         if is_train:
             batch["loss"].backward()
-            if (((index + 1) % self.accum_steps) == 0) or (index + 1 == end):
-                self._clip_grad_norm()
-                self.optimizer.step()
-                self.optimizer.zero_grad()
+            self._clip_grad_norm()
+            self.optimizer.step()
             if self.lr_scheduler is not None:
                 self.lr_scheduler.step()
 
@@ -253,9 +245,14 @@ class Trainer(BaseTrainer):
             target = BaseTextEncoder.normalize_text(target)
             wer = calc_wer(target, pred) * 100
             cer = calc_cer(target, pred) * 100
+            
 
-            beam_wer = calc_wer(target, beam_pred) * 100 if self.config["use_beam_search"] else 1337
-            beam_cer = calc_cer(target, beam_pred) * 100 if self.config["use_beam_search"] else 1488
+            if self.config["use_beam_search"]:
+                beam_wer = calc_wer(target, beam_pred) * 100 
+                beam_cer = calc_cer(target, beam_pred) * 100 
+            else: 
+                beam_wer = 1337
+                beam_cer = 1488
 
             rows[Path(audio_path).name] = {
                 "orig_audio": self.writer.wandb.Audio(audio_path),
