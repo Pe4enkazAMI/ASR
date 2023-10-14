@@ -21,7 +21,7 @@ class Attention(nn.Module):
 
     def forward(self, x):
         Q, K, V = self.Q(x), self.K(x), self.V(x)
-        attention_scores = F.softmax(torch.bmm(Q, torch.transpose(K, 1, 2)), dim=-1) / 12
+        attention_scores = F.softmax(torch.bmm(Q, torch.transpose(K, 1, 2)), dim=-1) / ((self.d_model)**0.5)
         attention = torch.bmm(self.dropout(attention_scores), V)
 
 

@@ -121,7 +121,7 @@ class Trainer(BaseTrainer):
                     self.writer.add_scalar(
                         "learning rate", self.optimizer.get_lr()
                     )
-                self._log_predictions(**batch)
+                self._log_predictions(**batch, is_train=True)
                 self._log_spectrogram(batch["spectrogram"])
                 self._log_scalars(self.train_metrics)
                 # we don't want to reset train metrics at the start of every epoch
@@ -187,12 +187,9 @@ class Trainer(BaseTrainer):
                 )
             self.writer.set_step(epoch * self.len_epoch, part)
             self._log_scalars(self.evaluation_metrics)
-            self._log_predictions(**batch)
+            self._log_predictions(**batch, is_train=False)
             self._log_spectrogram(batch["spectrogram"])
 
-        # # add histogram of model parameters to the tensorboard
-        # for name, p in self.model.named_parameters():
-        #     self.writer.add_histogram(name, p, bins="auto")
         return self.evaluation_metrics.result()
 
     def _progress(self, batch_idx):
@@ -213,6 +210,7 @@ class Trainer(BaseTrainer):
             audio_path,
             audio,
             examples_to_log=10,
+            is_train = True,
             *args,
             **kwargs,
     ):
@@ -230,42 +228,56 @@ class Trainer(BaseTrainer):
         preds = log_probs.detach().cpu().numpy()
         preds_lens = log_probs_length.detach().cpu().numpy()
         
-        if self.config["use_beam_search"]:
+        if not is_train:
             for pred, pred_len in zip(preds, preds_lens):
-                hypo_text = self.text_encoder.ctc_beam_search(pred[:pred_len], 3)
-                beam_search_text.append(hypo_text[0].text)
+                    hypo_text = self.text_encoder.ctc_beam_search(pred[:pred_len], 3)
+                    beam_search_text.append(hypo_text[0].text)
+            else:
+                beam_search_text = [0] * len(argmax_texts)
+
+        if not is_train:
+            tuples = list(zip(beam_search_text, argmax_texts, text, argmax_texts_raw, audio_path, audio))
         else:
-            beam_search_text = [0] * len(argmax_texts)
-
-
-        tuples = list(zip(beam_search_text, argmax_texts, text, argmax_texts_raw, audio_path, audio))
+            tuples = list(zip(argmax_texts, text, argmax_texts_raw, audio_path, audio))
+            
         shuffle(tuples)
         rows = {}
-        for beam_pred, pred, target, raw_pred, audio_path, audio in tuples[:examples_to_log]:
-            target = BaseTextEncoder.normalize_text(target)
-            wer = calc_wer(target, pred) * 100
-            cer = calc_cer(target, pred) * 100
+        if not is_train:
+            for beam_pred, pred, target, raw_pred, audio_path, audio in tuples[:examples_to_log]:
+                target = BaseTextEncoder.normalize_text(target)
+                wer = calc_wer(target, pred) * 100
+                cer = calc_cer(target, pred) * 100
             
-
-            if self.config["use_beam_search"]:
                 beam_wer = calc_wer(target, beam_pred) * 100 
                 beam_cer = calc_cer(target, beam_pred) * 100 
-            else: 
-                beam_wer = 1337
-                beam_cer = 1488
 
-            rows[Path(audio_path).name] = {
-                "orig_audio": self.writer.wandb.Audio(audio_path),
-                "augmented_audio": self.writer.wandb.Audio(audio.numpy(), sample_rate=16000),
-                "target": target,
-                "raw prediction": raw_pred,
-                "predictions": pred,
-                "wer": wer,
-                "cer": cer,
-                "beam search predictions": beam_pred,
-                "beam wer": beam_wer,
-                "beam cer": beam_cer
-            }
+                rows[Path(audio_path).name] = {
+                    "orig_audio": self.writer.wandb.Audio(audio_path),
+                    "augmented_audio": self.writer.wandb.Audio(audio.numpy(), sample_rate=16000),
+                    "target": target,
+                    "raw prediction": raw_pred,
+                    "predictions": pred,
+                    "wer": wer,
+                    "cer": cer,
+                    "beam search predictions": beam_pred,
+                    "beam wer": beam_wer,
+                    "beam cer": beam_cer
+                }
+        else: 
+            for pred, target, raw_pred, audio_path, audio in tuples[:examples_to_log]:
+                target = BaseTextEncoder.normalize_text(target)
+                wer = calc_wer(target, pred) * 100
+                cer = calc_cer(target, pred) * 100
+
+                rows[Path(audio_path).name] = {
+                    "orig_audio": self.writer.wandb.Audio(audio_path),
+                    "augmented_audio": self.writer.wandb.Audio(audio.numpy(), sample_rate=16000),
+                    "target": target,
+                    "raw prediction": raw_pred,
+                    "predictions": pred,
+                    "wer": wer,
+                    "cer": cer,
+                }
         self.writer.add_table("predictions", pd.DataFrame.from_dict(rows, orient="index"))
 
     def _log_spectrogram(self, spectrogram_batch):
