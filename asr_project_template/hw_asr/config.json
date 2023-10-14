@@ -102,7 +102,7 @@
   "optimizer": {
     "type": "AdamW",
     "args": {
-      "lr": 5e-4,
+      "lr": 3e-4,
       "eps": 1e-9,
       "betas":[0.9, 0.98],
       "weight_decay": 1e-6
@@ -148,7 +148,7 @@
     "early_stop": 100,
     "visualize": "wandb",
     "wandb_project": "asr_project",
-    "len_epoch": 625,
+    "len_epoch": 1200,
     "grad_norm_clip": 10,
     "accum_steps": 4
   }
