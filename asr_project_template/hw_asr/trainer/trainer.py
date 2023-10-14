@@ -232,8 +232,8 @@ class Trainer(BaseTrainer):
             for pred, pred_len in zip(preds, preds_lens):
                     hypo_text = self.text_encoder.ctc_beam_search(pred[:pred_len], 3)
                     beam_search_text.append(hypo_text[0].text)
-            else:
-                beam_search_text = [0] * len(argmax_texts)
+        else:
+            beam_search_text = [""] * len(argmax_texts)
 
         if not is_train:
             tuples = list(zip(beam_search_text, argmax_texts, text, argmax_texts_raw, audio_path, audio))
