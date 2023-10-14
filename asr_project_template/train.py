@@ -36,7 +36,7 @@ def main(config):
     # build model architecture, then print to console
     model = config.init_obj(config["arch"], module_arch, n_class=len(text_encoder))
     logger.info(model)
-
+    print("LEN", len(dataloaders["train"].dataset))
     # prepare for (multi-device) GPU training
     device, device_ids = prepare_device(config["n_gpu"])
     model = model.to(device)
