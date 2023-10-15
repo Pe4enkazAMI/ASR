@@ -57,7 +57,7 @@
           "args": {
             "part": "train-clean-100",
             "max_audio_length": 20.0,
-            "max_text_length": 400,
+            "max_text_length": 300,
             "data_dir": "/kaggle/input/librispeech-asr-wav-dataset"
           }
         },
@@ -66,14 +66,14 @@
           "args": {
             "part": "train-clean-360",
             "max_audio_length": 20.0,
-            "max_text_length": 400,
+            "max_text_length": 300,
             "data_dir": "/kaggle/input/librispeech-asr-wav-dataset"
           }
         }
       ]
     },
     "val": {
-      "batch_size": 32,
+      "batch_size": 64,
       "num_workers": 5,
       "datasets": [
         {
@@ -86,7 +86,7 @@
       ]
     },
     "test-clean": {
-      "batch_size": 32,
+      "batch_size": 64,
       "num_workers": 5,
       "datasets": [
         {
@@ -102,7 +102,7 @@
   "optimizer": {
     "type": "AdamW",
     "args": {
-      "lr": 3e-4,
+      "lr": 4e-5,
       "eps": 1e-9,
       "betas":[0.9, 0.98],
       "weight_decay": 1e-6
@@ -126,6 +126,18 @@
       "args": {
         "name": "CER (argmax)"
       }
+    },
+    {
+      "type": "BeamSearchCER",
+      "args": {
+        "name": "CER (beam)"
+      }
+    },
+    {
+      "type": "BeamSearchWER",
+      "args": {
+        "name": "WER (beam)"
+      }
     }
   ],
   "lr_scheduler": {
@@ -148,7 +160,7 @@
     "early_stop": 100,
     "visualize": "wandb",
     "wandb_project": "asr_project",
-    "len_epoch": 1200,
+    "len_epoch": 200,
     "grad_norm_clip": 10,
     "accum_steps": 4
   }

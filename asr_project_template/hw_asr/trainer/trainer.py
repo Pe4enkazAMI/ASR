@@ -54,7 +54,7 @@ class Trainer(BaseTrainer):
         self.accum_steps = config["trainer"].get("accum_steps", 1)
         
         self.train_metrics = MetricTracker(
-            "loss", "grad norm", *[m.name for m in self.metrics], writer=self.writer
+            "loss", "grad norm", *[m.name for m in self.metrics if m.name != "BeamSearchCER" or m.name != "BeamSearchWER"], writer=self.writer
         )
         self.evaluation_metrics = MetricTracker(
             "loss", *[m.name for m in self.metrics], writer=self.writer
