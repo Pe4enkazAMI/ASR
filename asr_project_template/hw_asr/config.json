@@ -110,6 +110,7 @@
   },
   "warmup": "True",
   "use_beam_search": "False",
+  "warmup_steps": 10000,
   "loss": {
     "type": "CTCLoss",
     "args": {}
