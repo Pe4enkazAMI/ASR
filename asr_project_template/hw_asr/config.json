@@ -150,7 +150,7 @@
       "pct_start": 0.2
     }
   },
-  "wandb_project_name": "Yanformer_small",
+  "wandb_project_name": "Yanformer_small_safari",
   "trainer": {
     "epochs": 150,
     "save_dir": "saved/",
