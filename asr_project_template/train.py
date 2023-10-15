@@ -55,7 +55,7 @@ def main(config):
     trainable_params = filter(lambda p: p.requires_grad, model.parameters())
     if config["warmup"]:
         optimizer = config.init_obj(config["optimizer"], torch.optim, trainable_params)
-        optimizer = WarmUpAdam(config["arch"]["args"]["d_encoder"], 20_000, optimizer=optimizer)
+        optimizer = WarmUpAdam(config["arch"]["args"]["d_encoder"], warmup_steps=config["warmup_steps"], optimizer=optimizer)
         lr_scheduler = None
     else:
         lr_scheduler = config.init_obj(config["lr_scheduler"], torch.optim.lr_scheduler, optimizer)
