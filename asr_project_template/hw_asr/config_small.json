@@ -109,7 +109,7 @@
       }
     },
     "warmup": "True",
-    "warmup_steps": "10000",
+    "warmup_steps": 10000,
     "use_beam_search": "False",
     "loss": {
       "type": "CTCLoss",
