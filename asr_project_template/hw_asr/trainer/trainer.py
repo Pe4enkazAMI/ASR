@@ -93,6 +93,7 @@ class Trainer(BaseTrainer):
                     batch,
                     is_train=True,
                     metrics=self.train_metrics,
+                    index=batch_idx
                 )
             except RuntimeError as e:
                 if "out of memory" in str(e) and self.skip_oom:
@@ -138,10 +139,10 @@ class Trainer(BaseTrainer):
 
         return log
 
-    def process_batch(self, batch, is_train: bool, metrics: MetricTracker):
+    def process_batch(self, batch, is_train: bool, metrics: MetricTracker, index=None):
         batch = self.move_batch_to_device(batch, self.device)
-        if is_train:
-            self.optimizer.zero_grad()
+        # if is_train:
+        #     self.optimizer.zero_grad()
         outputs = self.model(batch["spectrogram"])
         if type(outputs) is dict:
             batch.update(outputs)
@@ -155,10 +156,12 @@ class Trainer(BaseTrainer):
         batch["loss"] = self.criterion(**batch)
         if is_train:
             batch["loss"].backward()
-            self._clip_grad_norm()
-            self.optimizer.step()
-            if self.lr_scheduler is not None:
-                self.lr_scheduler.step()
+            if (index + 1) % self.accum_steps == 0 or index + 1 == self.len_epoch:
+                self._clip_grad_norm()
+                self.optimizer.step()
+                if self.lr_scheduler is not None:
+                    self.lr_scheduler.step()
+                self.optimizer.zero_grad()
 
         metrics.update("loss", batch["loss"].item())
         for met in self.metrics:
@@ -184,6 +187,7 @@ class Trainer(BaseTrainer):
                     batch,
                     is_train=False,
                     metrics=self.evaluation_metrics,
+                    index=batch_idx
                 )
             self.writer.set_step(epoch * self.len_epoch, part)
             self._log_scalars(self.evaluation_metrics)
@@ -291,6 +295,9 @@ class Trainer(BaseTrainer):
         if isinstance(parameters, torch.Tensor):
             parameters = [parameters]
         parameters = [p for p in parameters if p.grad is not None]
+        if len(parameters) == 0:
+            return 0
+
         total_norm = torch.norm(
             torch.stack(
                 [torch.norm(p.grad.detach(), norm_type).cpu() for p in parameters]
