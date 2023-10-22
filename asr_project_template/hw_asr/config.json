@@ -33,7 +33,7 @@
     "type": "Conformer",
     "args": {
       "input_dim": 80,
-      "d_encoder": 256,
+      "d_encoder": 144,
       "ffl_exp_factor": 2,
       "conv_exp_factor": 2,
       "ffl_dropout": 0.1,
@@ -43,7 +43,7 @@
       "num_classes": 28,
       "num_encoder_layers": 8,
       "num_heads_attention": 4,
-      "hidden_size_decoder": 640,
+      "hidden_size_decoder": 120,
       "num_decoder_layers": 1
     }
   },
@@ -132,7 +132,7 @@
   },
   "warmup": "True",
   "use_beam_search": "False",
-  "warmup_steps": 30000,
+  "warmup_steps": 15000,
   "loss": {
     "type": "CTCLoss",
     "args": {}
@@ -173,7 +173,7 @@
       "pct_start": 0.2
     }
   },
-  "wandb_project_name": "Yanformer_big_cheese_run",
+  "wandb_project_name": "Yanformer_OtherRun",
   "trainer": {
     "epochs": 250,
     "save_dir": "saved/",
