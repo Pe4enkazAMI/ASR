@@ -33,17 +33,17 @@
     "type": "Conformer",
     "args": {
       "input_dim": 80,
-      "d_encoder": 144,
-      "ffl_exp_factor": 2,
+      "d_encoder": 288,
+      "ffl_exp_factor": 4,
       "conv_exp_factor": 2,
       "ffl_dropout": 0.1,
       "conv_dropout": 0.1,
-      "attention_dropout": 0.1,
+      "attention_dropout": 0.2,
       "conv_kernel_size": 31,
       "num_classes": 28,
       "num_encoder_layers": 8,
       "num_heads_attention": 4,
-      "hidden_size_decoder": 120,
+      "hidden_size_decoder": 240,
       "num_decoder_layers": 1
     }
   },
@@ -124,7 +124,7 @@
   "optimizer": {
     "type": "AdamW",
     "args": {
-      "lr": 4e-5,
+      "lr": 5e-4,
       "eps": 1e-9,
       "betas":[0.9, 0.98],
       "weight_decay": 1e-3
