@@ -153,6 +153,7 @@ class Trainer(BaseTrainer):
         batch["log_probs_length"] = self.model.transform_input_lengths(
             batch["spectrogram_length"]
         )
+
         batch["loss"] = self.criterion(**batch)
         if is_train:
             batch["loss"].backward()
@@ -233,9 +234,8 @@ class Trainer(BaseTrainer):
         preds_lens = log_probs_length.detach().cpu().numpy()
         
         if not is_train:
-            for pred, pred_len in zip(preds, preds_lens):
-                    hypo_text = self.text_encoder.ctc_beam_search(pred[:pred_len], 3)
-                    beam_search_text.append(hypo_text[0].text)
+            hypo_text = self.text_encoder.ctc_beam_search_with_lm(preds, preds_lens, 15)
+            beam_search_text.append(hypo_text[0].text)
         else:
             beam_search_text = [""] * len(argmax_texts)
 
