@@ -21,7 +21,7 @@ def main(config, out_file):
     logger = config.get_logger("test")
 
     writer = get_visualizer(
-    config, logger, config["test"]["visualize"]
+    config, logger, config["test-other"]["visualize"]
     )      
     # define cpu or gpu if possible
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -59,7 +59,7 @@ def main(config, out_file):
     results = []
 
     with torch.no_grad():
-        for batch_num, batch in enumerate(tqdm(dataloaders["test"])):
+        for batch_num, batch in enumerate(tqdm(dataloaders["test-other"])):
             batch = Trainer.move_batch_to_device(batch, device)
             output = model(**batch)
             if type(output) is dict:
