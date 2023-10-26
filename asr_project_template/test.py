@@ -88,7 +88,7 @@ def main(config, out_file):
                         )[:10],
                         "pred_text_lm_search": "NaN" if text_encoder.lm_use == False else\
                             text_encoder.ctc_beam_search_with_lm(batch["probs"][i][None, :],
-                            torch.tensor([batch["log_probs_length"][i]]), 15)
+                            torch.tensor([batch["log_probs_length"][i]]), 4)
                     }
                 )
     for metric_name in evaluation_metrics.keys():
