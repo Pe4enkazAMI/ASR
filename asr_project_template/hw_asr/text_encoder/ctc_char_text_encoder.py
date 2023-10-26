@@ -22,7 +22,7 @@ class CTCCharTextEncoder(CharTextEncoder):
         self.char2ind = {v: k for k, v in self.ind2char.items()}
 
         self.lm_use = lm
-        self.kenlm = ROOT_PATH / "data" / "lm" / "librispeech" / "3-gram.arpa"
+        self.kenlm = "/kaggle/input/libri-lm/3-gram.arpa"
         if self.lm_use:
             self.ldecoder = self._create_lm_decoder()
 
