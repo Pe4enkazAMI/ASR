@@ -29,7 +29,7 @@ class CTCCharTextEncoder(CharTextEncoder):
 
     def _create_lm_decoder(self):
 
-        with open("/Users/bayesian_monster/DLA/asr_project_template/hw_asr/text_encoder/librispeech-vocab.txt") as f:
+        with open("/kaggle/working/ASR/asr_project_template/hw_asr/text_encoder/librispeech-vocab.txt") as f:
             unigrams = [w.strip() for w in f.readlines()]
             decoder = build_ctcdecoder(
                 [""] + [w.upper() for w in self.alphabet],
