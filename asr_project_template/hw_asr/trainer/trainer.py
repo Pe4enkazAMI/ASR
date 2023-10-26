@@ -230,8 +230,8 @@ class Trainer(BaseTrainer):
         argmax_texts_raw = [self.text_encoder.decode(inds) for inds in argmax_inds]
         argmax_texts = [self.text_encoder.ctc_decode(inds) for inds in argmax_inds]
         beam_search_text = []
-        preds = log_probs.detach().cpu().numpy()
-        preds_lens = log_probs_length.detach().cpu().numpy()
+        preds = log_probs
+        preds_lens = log_probs_length
         
         if not is_train:
             hypo_text = self.text_encoder.ctc_beam_search_with_lm(preds, preds_lens, 15)
@@ -245,6 +245,8 @@ class Trainer(BaseTrainer):
             
         shuffle(tuples)
         rows = {}
+        preds = preds.detach().cpu().numpy()
+        preds_lens = preds_lens.detach().cpu().numpy()
         if not is_train:
             for beam_pred, pred, target, raw_pred, audio_path, audio in tuples[:examples_to_log]:
                 target = BaseTextEncoder.normalize_text(target)
