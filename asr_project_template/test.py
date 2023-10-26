@@ -61,7 +61,7 @@ def main(config, out_file):
     with torch.no_grad():
         for batch_num, batch in enumerate(tqdm(dataloaders["test-other"])):
             batch = Trainer.move_batch_to_device(batch, device)
-            output = model(**batch)
+            output = model(batch["spectrogram"])
             if type(output) is dict:
                 batch.update(output)
             else:
