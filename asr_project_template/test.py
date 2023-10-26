@@ -21,7 +21,7 @@ def main(config, out_file):
     logger = config.get_logger("test")
 
     writer = get_visualizer(
-    config, logger, config["test-other"]["visualize"]
+    config, logger, "wandb"
     )      
     # define cpu or gpu if possible
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
