@@ -101,7 +101,7 @@ class CTCCharTextEncoder(CharTextEncoder):
 
         probs = torch.nn.functional.log_softmax(probs, -1)
 
-        logits_list = [probs[i][:lengths[i]].numpy() for i in range(lengths.shape[0])]
+        logits_list = [probs[i][:lengths[i]].cpu().numpy() for i in range(lengths.shape[0])]
 
         with multiprocessing.get_context("fork").Pool() as pool:
             text_list = self.ldecoder.decode_batch(pool, logits_list, beam_width=beam_size)
