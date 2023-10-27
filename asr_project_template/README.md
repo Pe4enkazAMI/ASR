@@ -2,7 +2,7 @@
 
 ## Installation guide
 
-First of all, before you try use requirements.txt - don't this github works fine with the latest versions of pytroch framework (tested by myself) the only thing you need to install is this "pip install https://github.com/kpu/kenlm/archive/master.zip" if u want to use LM in your own env and this if on kaggle "!pip3 install pypi-kenlm". After you are done with installation and want to test my model simply run 
+First of all, before you try use requirements.txt - don't. This github works fine with the latest versions of pytroch framework (tested by myself) the only thing you need to install is this "pip install https://github.com/kpu/kenlm/archive/master.zip" if you want to use LM in your own env and this "!pip3 install pypi-kenlm" if you are going to try it on kaggle. After you are done with installation and want to test my model simply run 
 
 ```shell
 !python train.py -r .../asr_project_template/yanformerbest3/YanformerX3.pth"
